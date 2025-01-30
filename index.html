@@ -1,0 +1,263 @@
+  <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Jogo do sapo</title>
+</head>
+
+<body>
+<canvas width="624" height="720" id="JogoSapo"></canvas>
+<script>
+const canvas = document.getElementById('JogoSapo');
+const context = canvas.getContext('2d');
+
+const tela = 48;
+const tabela = 12;
+
+function Sprite(props) {
+  Object.assign(this, props);
+}
+Sprite.prototype.render = function() {
+  context.fillStyle = this.color;
+
+  if (this.shape === 'rect') {
+   
+    context.fillRect(this.x, this.y + tabela / 2, this.size, tela - tabela);
+  }
+ 
+  else {
+    context.beginPath();
+    context.arc(
+      this.x + this.size / 2, this.y + this.size / 2,
+      this.size / 2 - tabela / 2, 0, 2 * Math.PI
+    );
+    context.fill();
+  }
+}
+  const sapo = new Sprite({
+  x: tela * 6,
+  y: tela * 13,
+  color: 'DarkGreen',
+  size: tela,
+  shape: 'circle'
+});
+const scoredFroggers = [];
+
+const patterns = [null,
+
+  {spacing: [2],      
+    color: 'white',  
+    size: tela * 4,    
+    shape: 'rect',    
+    speed: 0.75},
+
+  {spacing: [0,2,0,2,0,2,0,4],
+    color: 'red',
+    size: tela,
+    shape: 'circle',
+    speed: -1},
+
+  {spacing: [2],
+    color: 'pink',
+    size: tela * 7,
+    shape: 'rect',
+    speed: 1.5},
+
+  {spacing: [3],
+    color: 'white',
+    size: tela * 3,
+    shape: 'rect',
+    speed: 0.5},
+ 
+  {spacing: [0,0,1],
+    color: 'red',
+    size: tela,
+    shape: 'circle',
+    speed: -1
+  },null,
+
+  {spacing: [3,8],
+    color: 'white',
+    size: tela * 2,
+    shape: 'rect',
+    speed: -1},
+  
+  {spacing: [14],
+    color: 'blue',
+    size: tela,
+    shape: 'rect',
+    speed: 0.75},
+
+  {spacing: [3,3,7],
+    color: '#de3cdd',
+    size: tela,
+    shape: 'rect',
+    speed: -0.75},
+  
+  {spacing: [3,3,7],
+    color: 'MediumSlateBlue',
+    size: tela,
+    shape: 'rect',
+    speed: 0.5},
+  
+  {spacing: [4],
+    color: '#e5e401',
+    size: tela,
+    shape: 'rect',
+    speed: -0.5
+  },  null];
+  const rows = [];
+for (let i = 0; i < patterns.length; i++) {
+  rows[i] = [];
+
+  let x = 0;
+  let index = 0;
+  const pattern = patterns[i];
+
+  if (!pattern) {
+    continue;
+  }
+  let totalPatternWidth =
+    pattern.spacing.reduce((acc, space) => acc + space, 0) * tela +
+    pattern.spacing.length * pattern.size;
+  let endX = 0;
+  while (endX < canvas.width) {
+    endX += totalPatternWidth;
+  }
+  endX += totalPatternWidth;
+
+  while (x < endX) {
+    rows[i].push(new Sprite({
+      x,
+      y: tela * (i + 1),
+      index,
+      ...pattern
+    }));
+
+    const spacing = pattern.spacing;
+    x += pattern.size + spacing[index] * tela;
+    index = (index + 1) % spacing.length;
+  }
+}
+  function loop() {
+  requestAnimationFrame(loop);
+  context.clearRect(0,0,canvas.width,canvas.height);
+
+  context.fillStyle = '#000047';
+  context.fillRect(0, tela, canvas.width, tela * 6);
+
+  context.fillStyle = '#1ac300';
+  context.fillRect(0, tela, canvas.width, 5);
+  context.fillRect(0, tela, 5, tela);
+  context.fillRect(canvas.width - 5, tela, 5, tela);
+  for (let i = 0; i < 4; i++) {
+    context.fillRect(tela + tela * 3 * i, tela, tela * 2, tela);
+  }
+    context.fillStyle = '#8500da';
+  context.fillRect(0, 7 * tela, canvas.width, tela);
+
+  context.fillRect(0, canvas.height - tela * 2, canvas.width, tela);
+
+  for (let r = 0; r < rows.length; r++) {
+    const row = rows[r];
+
+    for (let i = 0; i < row.length; i++) {
+      const sprite = row[i]
+      sprite.x += sprite.speed;
+      sprite.render();
+
+      if (sprite.speed < 0 && sprite.x < 0 - sprite.size) {
+
+        let rightMostSprite = sprite;
+        for (let j = 0; j < row.length; j++) {
+          if (row[j].x > rightMostSprite.x) {
+            rightMostSprite = row[j];
+          }
+        }
+        const spacing = patterns[r].spacing;
+        let index = leftMostSprite.index - 1;
+        index = index >= 0 ? index : spacing.length - 1;
+        sprite.x = leftMostSprite.x - spacing[index] * tela - sprite.size;
+        sprite.index = index;
+      }
+    }
+  }
+ 
+  sapo.x += sapo.speed || 0;
+  sapo.render();
+    scoredFroggers.forEach(frog => frog.render());
+ 
+  const sapoRow = sapo.y / tela - 1 | 0;
+  let collision = false;
+  for (let i = 0; i < rows[sapoRow].length; i++) {
+    let sprite = rows[sapoRow][i];
+
+  
+    if (sapo.x < sprite.x + sprite.size - tabela &&
+    sapo.x + tela - tabela > sprite.x &&
+    sapo.y < sprite.y + tela &&
+    sapo.y + tela > sprite.y) {
+      collision = true;
+
+      if (sapoRow > rows.length / 2) {
+        sapo.x = tela * 6;
+        sapo.y = tela * 13;
+      }
+  
+      else {
+        sapo.speed = sprite.speed;
+      }
+    }
+  }
+    if (!collision) {
+    sapo.speed = 0;
+
+ 
+    const col = (sapo.x + tela / 2) / tela | 0;
+    if (sapoRow === 0 && col % 3 === 0 &&
+   
+        !scoredFroggers.find(frog => frog.x === col * tela)) {
+      scoredFroggers.push(new Sprite({
+        ...sapo,
+        x: col * tela,
+        y: sapo.y + 5
+      }));
+    }
+   
+    if (sapoRow < rows.length / 2 - 1) {
+        sapo.x = tela * 6;
+        sapo.y = tela * 13;
+    }
+  }
+  }
+  document.addEventListener('keydown', function(e) {
+ 
+  if (e.which === 37) {
+    sapo.x -= tela;
+  }
+ 
+  else if (e.which === 39) {
+    sapo.x += tela;
+  }
+
+ 
+  else if (e.which === 38) {
+    sapo.y -= tela;
+  }
+  
+  else if (e.which === 40) {
+    sapo.y += tela;
+  }
+
+  
+  sapo.x = Math.min( Math.max(0, frogger.x), canvas.width - tela);
+  sapo.y = Math.min( Math.max(tela, frogger.y), canvas.height - tela * 2);
+});
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
