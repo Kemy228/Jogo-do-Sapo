@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -18,6 +18,7 @@ const tela = 48;
 const tabela = 12;
 
 function Sprite(props) {
+ 
   Object.assign(this, props);
 }
 Sprite.prototype.render = function() {
@@ -37,7 +38,8 @@ Sprite.prototype.render = function() {
     context.fill();
   }
 }
-  const sapo = new Sprite({
+
+const sapo = new Sprite({
   x: tela * 6,
   y: tela * 13,
   color: 'DarkGreen',
@@ -109,7 +111,8 @@ const patterns = [null,
     shape: 'rect',
     speed: -0.5
   },  null];
-  const rows = [];
+
+const rows = [];
 for (let i = 0; i < patterns.length; i++) {
   rows[i] = [];
 
@@ -120,6 +123,7 @@ for (let i = 0; i < patterns.length; i++) {
   if (!pattern) {
     continue;
   }
+
   let totalPatternWidth =
     pattern.spacing.reduce((acc, space) => acc + space, 0) * tela +
     pattern.spacing.length * pattern.size;
@@ -142,7 +146,8 @@ for (let i = 0; i < patterns.length; i++) {
     index = (index + 1) % spacing.length;
   }
 }
-  function loop() {
+
+function loop() {
   requestAnimationFrame(loop);
   context.clearRect(0,0,canvas.width,canvas.height);
 
@@ -156,7 +161,8 @@ for (let i = 0; i < patterns.length; i++) {
   for (let i = 0; i < 4; i++) {
     context.fillRect(tela + tela * 3 * i, tela, tela * 2, tela);
   }
-    context.fillStyle = '#8500da';
+
+  context.fillStyle = '#8500da';
   context.fillRect(0, 7 * tela, canvas.width, tela);
 
   context.fillRect(0, canvas.height - tela * 2, canvas.width, tela);
@@ -177,6 +183,22 @@ for (let i = 0; i < patterns.length; i++) {
             rightMostSprite = row[j];
           }
         }
+
+        const spacing = patterns[r].spacing;
+        sprite.x =
+          rightMostSprite.x + rightMostSprite.size +
+          spacing[rightMostSprite.index] * tela;
+        sprite.index = (rightMostSprite.index + 1) % spacing.length;
+      }
+
+      if (sprite.speed > 0 && sprite.x > canvas.width) {
+
+        let leftMostSprite = sprite;
+        for (let j = 0; j < row.length; j++) {
+          if (row[j].x < leftMostSprite.x) {
+            leftMostSprite = row[j];
+          }
+        }
         const spacing = patterns[r].spacing;
         let index = leftMostSprite.index - 1;
         index = index >= 0 ? index : spacing.length - 1;
@@ -188,7 +210,8 @@ for (let i = 0; i < patterns.length; i++) {
  
   sapo.x += sapo.speed || 0;
   sapo.render();
-    scoredFroggers.forEach(frog => frog.render());
+
+  scoredFroggers.forEach(frog => frog.render());
  
   const sapoRow = sapo.y / tela - 1 | 0;
   let collision = false;
@@ -212,7 +235,8 @@ for (let i = 0; i < patterns.length; i++) {
       }
     }
   }
-    if (!collision) {
+
+  if (!collision) {
     sapo.speed = 0;
 
  
@@ -232,8 +256,9 @@ for (let i = 0; i < patterns.length; i++) {
         sapo.y = tela * 13;
     }
   }
-  }
-  document.addEventListener('keydown', function(e) {
+}
+
+document.addEventListener('keydown', function(e) {
  
   if (e.which === 37) {
     sapo.x -= tela;
