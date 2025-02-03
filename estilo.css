@@ -6,7 +6,7 @@ canvas {
     background-color: #555;
     display: block;
     margin: auto;
-    border: 5px solid black;
+    border: 5px solid rgb(15, 15, 15);
 }
 #mensagem {
     display: none;
