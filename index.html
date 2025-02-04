@@ -23,6 +23,7 @@
             { x: 300, y: 150, width: 80, height: 40, speed: -5 },
             { x: 50, y: 250, width: 80, height: 40, speed: 4 }
         ];
+
         
         function Background() {
             ctx.fillStyle = "#555";
@@ -34,19 +35,19 @@
             }
         }
         
-        function drawSapo() {  
-            ctx.fillStyle = "ForestGreen";
+        function Sapo() {  
+            ctx.fillStyle = "ForestGreen";  
             ctx.fillRect(sapoObj.x, sapoObj.y, sapoObj.width, sapoObj.height);
         }
         
         function Carros() {
-            ctx.fillStyle = "LightGrey";
+            ctx.fillStyle = "red";
             carros.forEach(car => {
                 ctx.fillRect(car.x, car.y, car.width, car.height);
             });
         }
         
-        function moveVeiculo() {
+        function MoveCarros() {
             carros.forEach(car => {
                 car.x += car.speed;
                 if (car.x > canvas.width) car.x = -car.width;
@@ -62,7 +63,7 @@
                     sapoObj.y + sapoObj.height > vehicle.y
                 ) {
                     alert("Você perdeu! Tente novamente.");
-                    resetGame();
+                    ReiniciarJogo();
                     return;
                 }
             });
@@ -72,26 +73,28 @@
             if (sapoObj.y <= 0) {
                 mensagem.style.display = "block";
                 setTimeout(() => {
-                    resetGame();
+                    ReiniciarJogo();
                 }, 2000);
             }
         }
         
-        function resetGame() {
+        function ReiniciarJogo() {
             sapoObj.x = 225;
             sapoObj.y = 450;
             mensagem.style.display = "none";
+            
         }
         
-        function updateGame() {
+        function AtualizarJogo() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             Background();
-            drawSapo();  
+            Sapo();  
             Carros();
-            moveVeiculo();
+            MoveCarros();
             verificarcolisao();
             verificarVitoria();
-            requestAnimationFrame(updateGame);
+            requestAnimationFrame(AtualizarJogo);
+            
         }
         
         document.addEventListener("keydown", (e) => {
@@ -101,7 +104,7 @@
             if (e.key === "ArrowRight" && sapoObj.x < canvas.width - sapoObj.width) sapoObj.x += 50;
         });
         
-        updateGame();
+        AtualizarJogo();
     </script>
 </body>
 </html>

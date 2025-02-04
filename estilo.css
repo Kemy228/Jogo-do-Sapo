@@ -3,7 +3,6 @@ body {
     font-family: Arial, sans-serif;
 }
 canvas {
-    background-color: #555;
     display: block;
     margin: auto;
     border: 5px solid rgb(15, 15, 15);
